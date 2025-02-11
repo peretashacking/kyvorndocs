@@ -148,10 +148,11 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Unique identifier for the post"
+            "description": "The Post ID (Not script ID)"
           },
           "author": {
             "type": "object",
+            "description": "ASsd",
             "properties": {
               "id": { "type": "string" },
               "username": { "type": "string" },
@@ -162,7 +163,7 @@
           },
           "content": {
             "type": "string",
-            "description": "Content of the post"
+            "description": "The description of the post, provided by the user"
           },
           "timestamp": {
             "type": "string",
@@ -185,7 +186,11 @@
             }
           },
           "scriptId": { "type": "string" },
-          "liked": { "type": "boolean" }
+          "liked": { "type": "boolean" },
+          "scriptContent": { 
+            "type": "string",
+            "description": "The full script content of the post"
+          }
         }
       }
     },
