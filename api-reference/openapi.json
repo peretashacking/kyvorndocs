@@ -15,7 +15,7 @@
   ],
   "paths": {
     "/api/posts": {
-      "get": {
+      "posts": {
         "description": "Returns all plants from the system that the user has access to",
         "parameters": [
           {
@@ -54,32 +54,37 @@
           }
         }
       },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
+    },
+     "/api/posts/{id}": {
+      "postsbyid": {
+        "description": "Returns all plants from the system that the user has access to",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of results to return",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
-          },
-          "required": true
-        },
+          }
+        ],
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Plant response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Plant"
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "content": {
               "application/json": {
                 "schema": {
@@ -89,8 +94,7 @@
             }
           }
         }
-      }
-    },
+      },
     "/plants/{id}": {
       "delete": {
         "description": "Deletes a single plant based on the ID supplied",
@@ -166,15 +170,10 @@
       "Error": {
         "required": [
           "error",
-          "message"
         ],
         "type": "object",
         "properties": {
           "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
             "type": "string"
           }
         }

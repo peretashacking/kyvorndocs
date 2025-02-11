@@ -8,22 +8,16 @@ sidebarTitle: "Home"
   If you are a developer of a moderately sized or larger executor or application, you can [create a ticket in Peretas Technologies](https://discord.gg/peretas) to get help setting up the API into your executor and get it featured on the Kyvorn website.
 </Tip>
 
-## Welcome
+## Before you start
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+Before you start, here are some things you should keep in mind while developing with the Kyvorn API.
 
-<Card title="Plant Store Endpoints" icon="leaf" href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json">
-  View the OpenAPI specification file
-</Card>
+<Warning>
+  All requests must be made over HTTPS or they will not be returned by the server. There is no HTTP client running on the API.
+</Warning>
 
-## Authentication
+* Users will not be able to sign in to their account, they must do it from the Kyvorn web UI
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+* There is a ratelimit to the API (by IP, not by application)
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+* You do not need to create/generate an API key for your client, it will simply work just with integration
