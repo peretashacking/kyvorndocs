@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "http://kyvornapi.peretas.tech"
     }
   ],
   "security": [
@@ -19,7 +19,7 @@
     }
   ],
   "paths": {
-    "/plants": {
+    "/api/posts": {
       "get": {
         "description": "Returns all plants from the system that the user has access to",
         "parameters": [
