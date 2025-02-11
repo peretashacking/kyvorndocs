@@ -161,7 +161,7 @@
               "dev": { "type": "boolean", "description": "True|false if the user has the dev attribute" },
               "admin": { "type": "boolean", "description": "True|false if the user has the admin attribute" },
               "respected": { "type": "boolean", "description": "True|false if the user has the respected attribute" },
-              "avatar": { "type": "string", "format": "uri", "description": "Returns the random user avatar", }
+              "avatar": { "type": "string", "format": "uri", "description": "Returns the random user avatar" }
             }
           },
           "content": {
@@ -171,15 +171,15 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
-            "description": "The date the post was uploaded to Kyvorn",
+            "description": "The date the post was uploaded to Kyvorn"
           },
           "scriptInfo": {
             "type": "object",
-            "description": "User-provided information about the script",
+            "description": "User-provided information about the script"
             "properties": {
-              "game": { "type": "string", "description": "(User provided) The name of the game the script is compatible in", },
-              "detection": { "type": "string", "description": "Detection in games, Detected|Undetected|Unknown", },
-              "type": { "type": "string", "description": "", },
+              "game": { "type": "string", "description": "(User provided) The name of the game the script is compatible in" },
+              "detection": { "type": "string", "description": "Detection in games, Detected|Undetected|Unknown" },
+              "type": { "type": "string", "description": "The type of script it is" },
               "pricing": { "type": "string" },
               "bannerUrl": { "type": "string", "format": "uri", "nullable": true }
             }
