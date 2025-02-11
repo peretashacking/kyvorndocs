@@ -179,19 +179,20 @@
             "properties": {
               "game": { "type": "string", "description": "(User provided) The name of the game the script is compatible in" },
               "detection": { "type": "string", "description": "Detection in games, Detected|Undetected|Unknown" },
-              "type": { "type": "string", "description": "The type of script it is" },
-              "pricing": { "type": "string" },
-              "bannerUrl": { "type": "string", "format": "uri", "nullable": true }
+              "type": { "type": "string", "description": "The type of script it is in forms of obsfucation, Obsfucated|Unobsfucated|Loadstring" },
+              "pricing": { "type": "string", "description": "The price of the script, Free|Paid|Keysystem" },
+              "bannerUrl": { "type": "string", "format": "uri", "nullable": true, "description": "The user-provided banner URL. If using <img> for embedding, it is reccomended you add an onerror='this.src=sadfkasdfokasd' attribute to protect against scripts with no banner URL." }
             }
           },
           "stats": {
+            "description": "Statistics for the script",
             "type": "object",
             "properties": {
-              "likes": { "type": "integer" }
+              "likes": { "type": "integer", "description": "Amount of likes" }
             }
           },
-          "scriptId": { "type": "string" },
-          "liked": { "type": "boolean" },
+          "scriptId": { "type": "string", "description": "The Script ID that will be needed to access the raw script" },
+          "liked": { "type": "boolean", "description": "Will never return true since the user cannot sign in on an Integrated Kyvorn API app." },
           "scriptContent": { 
             "type": "string",
             "description": "The full script content of the post"
