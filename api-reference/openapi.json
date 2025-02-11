@@ -101,7 +101,7 @@
         }
       }
     },
-    "/scripts/raw/{id}": {
+    "/scripts/raw/{scriptid}": {
       "get": {
         "description": "Deletes a script based on the ID supplied",
         "parameters": [
