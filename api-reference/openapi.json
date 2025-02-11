@@ -147,13 +147,17 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "A",
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "description": "A",
           },
           "content": {
-            "type": "string"
+            "type": "string",
+            "description": "A",
+            "in": "title"
           }
         }
       }
