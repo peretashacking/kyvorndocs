@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "API Reference",
+        "tab": "API Documentation",
         "groups": [
           {
             "group": "API Documentation",
@@ -33,19 +33,19 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
+          "anchor": "Script Library",
+          "href": "https://kyvorn.peretas.tech/app/",
           "icon": "book-open-cover"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
+          "anchor": "Kyvorn Website",
+          "href": "https://kyvorn.peretas.tech/",
+          "icon": "globe-pointer"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Discord",
+          "href": "https://discord.com/invite/iballexus",
+          "icon": "discord"
         }
       ]
     }
