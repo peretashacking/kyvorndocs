@@ -11,3 +11,161 @@ description: "This documentation shows how to implement Kyvorn API into your UI/
 ## Setting up your UI
 
 For this tutorial, I will create a basic UI card layout that will show information about the fetched items with a search. On click, it will open a popup menu that will show the raw script with a copy button.
+
+<Info>
+  You'll need to open a new popup menu and make an API call to the [Posts by ID](https://kyvorndocs.peretas.tech/api-reference/endpoint/postsbyid) endpoint in order to obtain script content, unless you get it from the raw script.
+</Info>
+
+## Modifying the pre-made Kyvorn API Template
+
+<CodeGroup>
+  ```markdown index.html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Kyvorn Script Library</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <style>
+          .fade-in { animation: fadeIn 0.3s ease-in-out; }
+          .fade-out { animation: fadeOut 0.3s ease-in-out forwards; }
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+      </style>
+  </head>
+  <body class="bg-gray-900 text-white p-6">
+
+      <h1 class="text-3xl font-bold text-center mb-6">Kyvorn Script Library</h1>
+      <div class="max-w-6xl mx-auto">
+          <input id="search" type="text" placeholder="Search scripts..." class="w-full p-3 rounded-lg bg-gray-800 text-white mb-4 border border-gray-700">
+          <div id="scriptContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+          <div class="bg-gray-800 p-6 rounded-lg w-[500px] fade-in">
+              <h2 id="modalTitle" class="text-lg font-bold mb-2"></h2>
+              <p id="modalDescription" class="text-sm mb-2"></p>
+              <p id="modalAuthor" class="text-xs text-gray-400 mb-2"></p>
+              <pre id="scriptContent" class="bg-gray-700 p-2 rounded text-sm overflow-auto max-h-48"></pre>
+              <button id="copyBtn" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 p-2 rounded">Copy</button>
+              <button id="modalCloseBtn" class="mt-2 w-full bg-red-600 hover:bg-red-700 p-2 rounded">Close</button>
+          </div>
+      </div>
+
+      <script src="script.js"></script>
+
+  </body>
+  </html>
+  ```
+
+  ```javascript script.js
+          const scriptContainer = document.getElementById('scriptContainer');
+          const modal = document.getElementById('modal');
+          const modalTitle = document.getElementById('modalTitle');
+          const modalDescription = document.getElementById('modalDescription');
+          const modalAuthor = document.getElementById('modalAuthor');
+          const scriptContent = document.getElementById('scriptContent');
+          const copyBtn = document.getElementById('copyBtn');
+          const modalCloseBtn = document.getElementById('modalCloseBtn');
+          const search = document.getElementById('search');
+
+          function renderScripts(scripts) {
+              scriptContainer.innerHTML = '';
+              scripts.forEach(script => {
+                  const card = document.createElement('div');
+                  card.className = 'bg-gray-800 p-4 rounded-lg border border-gray-700 cursor-pointer';
+                  card.innerHTML = `
+                      <img src="${script.scriptInfo.bannerUrl || 'https://cdn.peretas.tech/imgfailed.png'}" class="w-full h-32 object-cover rounded-lg mb-2">
+                      <h3 class="text-lg font-bold">${script.content}</h3>
+                      <p class="text-sm text-gray-400">${script.author.handle} • ${script.stats.likes} likes</p>
+                      <p class="text-xs text-gray-500 mt-1">Game: ${script.scriptInfo.game} | Detection: ${script.scriptInfo.detection} | Type: ${script.scriptInfo.type} | ${script.scriptInfo.pricing}</p>
+                      <button class="mt-2 bg-gray-700 hover:bg-gray-600 p-1 rounded w-full">View Script</button>
+                  `;
+                  card.querySelector('button').addEventListener('click', () => {
+                      fetch(`https://kyvornapi.peretas.tech/api/posts/${script.id}`)
+                          .then(response => response.json())
+                          .then(postData => {
+                              modalTitle.textContent = `Script: ${postData.scriptInfo.type}`;
+                              modalDescription.textContent = postData.content;
+                              modalAuthor.textContent = `Author: ${postData.author.handle} | Uploaded: ${new Date(postData.timestamp).toLocaleDateString()}`;
+                              scriptContent.textContent = postData.scriptContent;
+                              modal.classList.remove('hidden');
+                          })
+                          .catch(err => console.error(err));
+                  });
+                  scriptContainer.appendChild(card);
+              });
+          }
+
+          // Initial fetch to load all posts
+          fetch('https://kyvornapi.peretas.tech/api/posts')
+              .then(response => response.json())
+              .then(data => renderScripts(data))
+              .catch(err => console.error(err));
+
+          // Handle search
+          search.addEventListener('input', (e) => {
+              const query = e.target.value.trim();
+              if (query) {
+                  fetch(`https://kyvornapi.peretas.tech/api/posts?search=${encodeURIComponent(query)}`)
+                      .then(response => response.json())
+                      .then(data => renderScripts(data))
+                      .catch(err => console.error(err));
+              } else {
+                  fetch('https://kyvornapi.peretas.tech/api/posts')
+                      .then(response => response.json())
+                      .then(data => renderScripts(data))
+                      .catch(err => console.error(err));
+              }
+          });
+
+          // Modal interactions
+          copyBtn.addEventListener('click', () => {
+              navigator.clipboard.writeText(scriptContent.textContent);
+          });
+
+          modalCloseBtn.addEventListener('click', () => {
+              modal.classList.add('fade-out');
+              setTimeout(() => {
+                  modal.classList.add('hidden');
+                  modal.classList.remove('fade-out');
+              }, 300);
+          });
+  ```
+</CodeGroup>
+
+Using this implementation, we can easily embed the script library into an HTML page. You will need to edit this to work for you but it should mostly work. **Get creative!** Design awesome UIs and take advantage of the full possibilities of the Kyvorn Script Library!
+
+### Tip: Setting fallback images
+
+In a great world, every script on Kyvorn would include images. In reality, however, not all scripts will include banner images. You'll be left with an ugly banner image, usually transparent and not looking well. You can set an on error to image classes, or in our use case, the `||` block in our JS.
+
+<Tip>
+  Need an image failed placeholder? Use Kyvorn's: [https://cdn.peretas.tech/imgfailed.png](https://cdn.peretas.tech/imgfailed.png)
+</Tip>
+
+![](/image.png)
+
+As you can see in this example, the use of placeholder images make the Script Library look much more cleaner.
+
+![](https://cdn.discordapp.com/attachments/1317960985520246936/1338705060884119562/image.png?ex=67ac0dbe\&is=67aabc3e\&hm=03ea967a18f66538008cf2f7f694eb98d0c14b6f3cf16dbd670faa95457c895a&=)
+In this example, you can see that it looks goofy with the image unloaded thingy in the top. In our `card.innerHTML` you can see our line of code:
+
+```markdown
+<img src="${script.scriptInfo.bannerUrl || 'https://cdn.peretas.tech/imgfailed.png'}" class="w-full h-32 object-cover rounded-lg mb-2">
+```
+
+You can replace this URL with anything, this will simply load [`https://cdn.peretas.tech/imgfailed.png`](https://cdn.peretas.tech/imgfailed.png) when `script.scriptInfo.bannerUrl` is equal to `null`. In HTML, you can also use the `onerror` element to change the URL when it errors out:
+
+```markdown
+<img src="${script.scriptInfo.bannerUrl}" class="w-full h-32 object-cover rounded-lg mb-2" onerror="this.src='https://cdn.peretas.tech/imgfailed.png'">
+```
+
+This will instead load [https://cdn.peretas.tech/imgfailed.png](https://cdn.peretas.tech/imgfailed.png) when any error occurs, which is more optimal to use if the **image the user has provided has CORS enabled or is deleted.**
+
+## Branding
+
+**Congratulations!** You just included Kyvorn inside of your application! Now, you are able to include the special Uses Kyvorn API badge onto your executor's website or Credits/Settings page. [You can download it on our main page here.](https://kyvorn.peretas.tech/#branding)
+
+![Kyvorn Logo](/useskyvornapi.png)

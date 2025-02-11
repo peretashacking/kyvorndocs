@@ -195,7 +195,7 @@
           "liked": { "type": "boolean", "description": "Will never return true since the user cannot sign in on an Integrated Kyvorn API app." },
           "scriptContent": { 
             "type": "string",
-            "description": "The full script content of the post"
+            "description": "NOT SUPPORTED WITH /api/posts! ONLY SUPPORTED WITH /api/posts/{id}!!!! | The full script content of the post"
           }
         }
       }

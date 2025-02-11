@@ -17,7 +17,9 @@
             "group": "API Documentation",
             "pages": [
               "api-reference/introduction",
-              "api-reference/implementation"
+              "api-reference/implementation",
+              "api-reference/embedded",
+              "api-reference/execute"
             ]
           },
           {
