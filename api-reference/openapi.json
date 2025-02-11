@@ -109,15 +109,15 @@
             "name": "scriptid",
             "in": "path",
             "required": true,
-            "description": "ID of the script to delete",
+            "description": "ID of the script to get the raw file of. NOTE: Starts with script_.",
             "schema": {
               "type": "string"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Script deleted"
+          "200": {
+            "description": "-- full script content"
           },
           "400": {
             "description": "Unexpected error",
