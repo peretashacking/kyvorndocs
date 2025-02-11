@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://kyvornapi.peretas.tech"
+      "url": "https://kyvornapi.peretas.tech"
     }
   ],
   "paths": {
