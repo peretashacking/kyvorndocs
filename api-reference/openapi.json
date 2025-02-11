@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Kyvorn API",
+    "description": "The public-facing API for Kyvorn that can be embedded into your executor.",
     "license": {
       "name": "MIT"
     },
@@ -11,11 +11,6 @@
   "servers": [
     {
       "url": "http://kyvornapi.peretas.tech"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
     }
   ],
   "paths": {
