@@ -16,12 +16,12 @@
   "paths": {
     "/api/posts": {
       "get": {
-        "description": "Returns all posts from the system that the user has access to",
+        "description": "Returns all recent posts from the system that the user has access to",
         "parameters": [
           {
             "name": "limit",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "description": "The maximum number of results to return (max 100, above will error out with 400 error)",
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -106,7 +106,7 @@
         "description": "Deletes a script based on the ID supplied",
         "parameters": [
           {
-            "name": "id",
+            "name": "scriptid",
             "in": "path",
             "required": true,
             "description": "ID of the script to delete",
@@ -148,17 +148,44 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "A",
+            "description": "Unique identifier for the post"
           },
-          "title": {
-            "type": "string",
-            "description": "A",
+          "author": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "username": { "type": "string" },
+              "handle": { "type": "string" },
+              "verified": { "type": "boolean" },
+              "avatar": { "type": "string", "format": "uri" }
+            }
           },
           "content": {
             "type": "string",
-            "description": "A",
-            "in": "title"
-          }
+            "description": "Content of the post"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scriptInfo": {
+            "type": "object",
+            "properties": {
+              "game": { "type": "string" },
+              "detection": { "type": "string" },
+              "type": { "type": "string" },
+              "pricing": { "type": "string" },
+              "bannerUrl": { "type": "string", "format": "uri", "nullable": true }
+            }
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "likes": { "type": "integer" }
+            }
+          },
+          "scriptId": { "type": "string" },
+          "liked": { "type": "boolean" }
         }
       }
     },
