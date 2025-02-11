@@ -18,6 +18,10 @@ For this tutorial, I will create a basic UI card layout that will show informati
 
 ## Modifying the pre-made Kyvorn API Template
 
+<Warning>
+  **Vulnerability Alert:** Do not use this code example in a product environment! There are issues where RCE/XSS is possible by attackers via embedding script tags/iframe tags into their script upload, which can be used to perform malicious activity. You can get around this by manually embedding each form with `textContent` instead of putting the entire thing in `innerHTML`, which is insecure and can cause these vulnerabilities.
+</Warning>
+
 <CodeGroup>
   ```markdown index.html
   <!DOCTYPE html>
@@ -145,7 +149,7 @@ In a great world, every script on Kyvorn would include images. In reality, howev
   Need an image failed placeholder? Use Kyvorn's: [https://cdn.peretas.tech/imgfailed.png](https://cdn.peretas.tech/imgfailed.png)
 </Tip>
 
-![](/image.png)
+![](https://cdn.discordapp.com/attachments/1338283384572608533/1338720654861537394/image.png?ex=67ac1c44\&is=67aacac4\&hm=d02e960fc9dd936a2168dd5874c3e55623ac09a5c63ba9bc97c58ff1ca2c6635&=)
 
 As you can see in this example, the use of placeholder images make the Script Library look much more cleaner.
 
