@@ -103,7 +103,7 @@
     },
     "/scripts/raw/{scriptid}": {
       "get": {
-        "description": "Deletes a script based on the ID supplied",
+        "description": "Returns the raw script content based on the script ID supplied",
         "parameters": [
           {
             "name": "scriptid",
@@ -117,7 +117,7 @@
         ],
         "responses": {
           "200": {
-            "description": "-- full script content"
+            "description": "Full script content"
           },
           "400": {
             "description": "Unexpected error",
@@ -154,9 +154,9 @@
             "type": "object",
             "description": "Information about the post author",
             "properties": {
-              "id": { "type": "string", "description": "ID of the post author", },
-              "username": { "type": "string", "description": "Username of the post author", },
-              "handle": { "type": "string", "description": "Handle of the post author (comes predefined with the @) ex: @kyvorn", },
+              "id": { "type": "string", "description": "ID of the post author" },
+              "username": { "type": "string", "description": "Username of the post author" },
+              "handle": { "type": "string", "description": "Handle of the post author (comes predefined with the @) ex: @kyvorn" },
               "verified": { "type": "boolean", "description": "True|false if the user has the verified attribute" },
               "dev": { "type": "boolean", "description": "True|false if the user has the dev attribute" },
               "admin": { "type": "boolean", "description": "True|false if the user has the admin attribute" },
@@ -170,18 +170,18 @@
           },
           "timestamp": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
             "description": "The date the post was uploaded to Kyvorn"
           },
           "scriptInfo": {
             "type": "object",
-            "description": "User-provided information about the script"
+            "description": "User-provided information about the script",
             "properties": {
               "game": { "type": "string", "description": "(User provided) The name of the game the script is compatible in" },
               "detection": { "type": "string", "description": "Detection in games, Detected|Undetected|Unknown" },
-              "type": { "type": "string", "description": "The type of script it is in forms of obsfucation, Obsfucated|Unobsfucated|Loadstring" },
-              "pricing": { "type": "string", "description": "The price of the script, Free|Paid|Keysystem" },
-              "bannerUrl": { "type": "string", "format": "uri", "nullable": true, "description": "The user-provided banner URL. If using <img> for embedding, it is reccomended you add an onerror='this.src=sadfkasdfokasd' attribute to protect against scripts with no banner URL." }
+              "type": { "type": "string", "description": "The type of script it is in forms of obfuscation, Obfuscated|Unobfuscated|Loadstring" },
+              "pricing": { "type": "string", "description": "The price of the script, Free|Paid|Key system" },
+              "bannerUrl": { "type": "string", "format": "uri", "nullable": true, "description": "The user-provided banner URL. If using <img> for embedding, it is recommended you add an onerror='this.src=fallback.jpg' attribute to protect against scripts with no banner URL." }
             }
           },
           "stats": {
