@@ -26,22 +26,17 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search all posts with a query (leave blank to fetch basic results)",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
+      },
           "400": {
             "description": "Unexpected error",
             "content": {
