@@ -15,8 +15,8 @@
   ],
   "paths": {
     "/api/posts": {
-      "posts": {
-        "description": "Returns all plants from the system that the user has access to",
+      "get": {
+        "description": "Returns all posts from the system that the user has access to",
         "parameters": [
           {
             "name": "limit",
@@ -36,43 +36,15 @@
             }
           }
         ],
-      },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-    },
-     "/api/posts/{id}": {
-      "postsbyid": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Plant"
+                    "$ref": "#/components/schemas/Post"
                   }
                 }
               }
@@ -89,29 +61,66 @@
             }
           }
         }
-      },
-    "/scripts/raw/{id}": {
-      "rawscript": {
-        "description": "Deletes a single plant based on the ID supplied",
+      }
+    },
+    "/api/posts/{id}": {
+      "get": {
+        "description": "Returns a specific post based on ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of plant to delete",
             "required": true,
+            "description": "ID of the post to fetch",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scripts/raw/{id}": {
+      "get": {
+        "description": "Deletes a script based on the ID supplied",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the script to delete",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "204": {
-            "description": "Plant deleted",
-            "content": {}
+            "description": "Script deleted"
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Unexpected error",
             "content": {
               "application/json": {
                 "schema": {
@@ -127,12 +136,23 @@
   "components": {
     "schemas": {
       "Error": {
-        "required": [
-          "error",
-        ],
         "type": "object",
         "properties": {
           "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
             "type": "string"
           }
         }
