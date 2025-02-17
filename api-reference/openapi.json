@@ -164,6 +164,10 @@
               "avatar": { "type": "string", "format": "uri", "description": "Returns the random user avatar" }
             }
           },
+          "title": {
+            "type": "string",
+            "description": "The title of the post, provided by the user"
+          },
           "content": {
             "type": "string",
             "description": "The description of the post, provided by the user"
