@@ -2,3 +2,247 @@
 title: "Kyvorn Execute"
 description: "Learn how to implement Kyvorn Execute into your executor"
 ---
+
+## What is Kyvorn Execute?
+
+Imagine the ability to execute scripts directly from a script library without ever having to enter your executor. If your executor is Internal and supports Kyvorn Execute, you may be able to automatically connect internally instead of in the UI on Roblox launch.
+
+## How does Kyvorn Execute work?
+
+### Web Interface & Client
+
+The web interface will create an executor token under the user's authorization, and then that will be saved to be "paired" to an executor.
+
+An executor can then "pair" and connect with this token. The pairing is meant so that if a user has multiple executors/multi-instance you can easily send it to a single executor in one dashboard.
+
+**If you only have one executor paired** then it will default to running that one automatically when the page is loaded.
+
+### Executor
+
+The executor will login with the user's executorToken, and set its name up so that the executor is in a Paired state.
+
+Once in a paired state, the executor will begin making requests checking for pending scripts every 5 seconds.
+
+In the future we will find a more efficent way of doing this that takes up less bandwith possibly (since this implementation is maybe \~100 KB).
+
+## (New) Kyvorn Execute Client Code
+
+<Info>
+  From now on, "client" is used interchangeably with the Web interface and your Executor's user interface
+</Info>
+
+Integrate this code with your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute `v1.1.0`
+
+<Warning>
+  This code may need adjustments if Kyvorn Execute updates its backend in the future
+</Warning>
+
+## Integrating with your executor
+
+<CodeGroup>
+
+```javascript execute.js [expandable]
+/*
+
+  _  __                             _____                     _       
+ | |/ /   ___   _____  _ __ _ __   | ____|_  _____  ___ _   _| |_ ___ 
+ | ' / | | \ \ / / _ \| '__| '_ \  |  _| \ \/ / _ \/ __| | | | __/ _ \
+ | . \ |_| |\ V / (_) | |  | | | | | |___ >  <  __/ (__| |_| | ||  __/
+ |_|\_\__, | \_/ \___/|_|  |_| |_| |_____/_/\_\___|\___|\__,_|\__\___|
+      |___/                                                           
+
+Developed by the iBallexus Team
+© 2025 Peretas Technologies
+You are free to modify this code to your liking in order to suit your executor's needs.
+We are glad to have you supported as an executor with Kyvorn Execute.
+If you own a mid-sized or larger executor that supports Kyvorn Execute, you can be featured
+on the Kyvorn website. Reach out to us at ib.peretas.tech/d
+
+*/
+const API_SERVER_URL = "http://localhost:3000"; // should stay as is unless using a development enviornment
+const DEFAULT_EXECUTOR_NAME = "Kyvorn Execute JS Testing"; // edit this to your executor's name
+const SCRIPT_CHECK_WAIT_DURATION = 5000; // 5 seconds
+
+let executorToken = localStorage.getItem('executorToken');
+let executorName = DEFAULT_EXECUTOR_NAME;
+let checkSessionInterval;
+
+function log(message, type = '') {
+    if (type === 'error') {
+        console.error("[Kyvorn Execute] " + message)
+    } else if (type === 'warning') {
+        console.warn("[Kyvorn Execute] " + message)
+    } else {
+        console.log("[Kyvorn Execute] " + message)
+    }
+}
+
+log(`Ready`)
+
+
+// Pair your executor to the user
+async function login(token) {
+    if (!token) {
+        log("Executor token required", "error")
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/auth/executor/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, name: DEFAULT_EXECUTOR_NAME, })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            executorToken = token;
+            executorName = name;
+
+            // Save our executor info to localStorage to persist sessions
+            // This may need to change based on your framework
+            localStorage.setItem('executorToken', token);
+            localStorage.setItem('executorName', name);
+            log("Connected to Kyvorn Execute API")
+            startSessionCheck();
+        } else {
+            log(`Login failed: ${data.error || 'Unknown error'}`, "error");
+        }
+    } catch (error) {
+        log(`Failed to login: ${error.message}`, "error");
+    }
+}
+
+// Loop to check if the executor is still paired
+async function checkSession() {
+    if (!executorToken) return;
+
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/auth/executor/session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: executorToken })
+        });
+
+        const data = await response.json();
+        if (!data.paired) {
+            log("User has unpaired executor, logging out...")
+            logout();
+            return;
+        }
+
+        log("Connected")
+        await checkPendingScripts();
+    } catch (error) {
+        log(`User session check failed: ${error}`, "error");
+    }
+}
+
+/*
+❗❗❗❗❗❗❗❗❗🚧🚧🚧🚧🚧
+
+THIS FUNCTION NEEDS TO BE EDITED BEFORE PRODUCTION
+
+⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
+*/
+async function getScriptById(sid) {
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/posts/${sid}`);
+        const data = await response.json();
+        const scr = data.scriptContent;
+
+        // This function is inside of this file
+        execute(scr)
+
+
+        log(`Executed ${sid} from Kyvorn`)
+
+    } catch (error) {
+        log(`Failed to fetch script from Kyvorn: ${error}`, "error")
+    }
+}
+
+function execute(script) {
+    // Note: This is in its own function to support execution from the Kyvorn Editor
+    // You will need to add your logic to execute the script here
+    // "parent.execute(script)" is the function used by Sight to execute a script
+    // The "script" variable is the full script content.
+    // View this function and its logic on Sight:
+    // https://github.com/peretashacking/sight/blob/main/src/main.js line 124:1
+    parent.execute(script)
+}
+
+// Loop to check for pending scripts
+async function checkPendingScripts() {
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/execute/receive/${executorToken}`);
+        const data = await response.json();
+
+        if (data.scripts && data.scripts.length > 0) {
+            data.scripts.forEach(script => {
+                if (script.type = "sid") {
+                    getScriptById(script.scriptId)
+                } else if (script.type = "editor") {
+                    execute(script.scr)
+                }
+            });
+        }
+    } catch (error) {
+        log(`Failed checking pending scripts: ${error}`, "error")
+    }
+}
+
+// Logic to start the pair check
+function startSessionCheck() {
+    checkSession();
+    checkSessionInterval = setInterval(checkSession, SCRIPT_CHECK_WAIT_DURATION);
+}
+
+// Remove items if user unpairs executor
+function logout() {
+    log(`Removing items, user has unpaired this executor ${localStorage.getItem('executorToken')}`)
+    localStorage.removeItem('executorToken');
+    localStorage.removeItem('executorName');
+    executorToken = null;
+    executorName = null;
+    clearInterval(checkSessionInterval);
+    log(`Logged out of Kyvorn Execute`)
+}
+
+// Check for existing session on page load to reconnect
+if (executorToken && executorName) {
+    startSessionCheck();
+}
+```
+
+</CodeGroup>
+
+### Setting your executor's name
+
+Once you've put the proper file inside of your client, you'll need to make sure it runs on start. You should change the const variables at the top of the `execute.js` file you have downloaded. For example, if your executor is called _SkiddieScript_ you'd fill out the JavaScript const variables like this:
+
+```javascript
+const API_SERVER_URL = "https://kyvornapi.peretas.tech"; 
+const DEFAULT_EXECUTOR_NAME = "SkiddieScript"; 
+const SCRIPT_CHECK_WAIT_DURATION = 5000;
+```
+
+**API_SERVER_URL** defines the API URL the executor uses for Kyvorn Execute. \*\*DEFAULT_EXECUTOR_NAME \*\*defines the name of your executor and **SCRIPT_CHECK_WAIT_DURATION** defines the wait to check for new pending scripts in milliseconds.
+
+### Setting up the execute function
+
+You'll need to find the `function execute(script)` to setup your executor's execute function. You'll need to add your custom logic that will execute the script, which is included as the variable "script".
+
+In this example, I use the execute function from Sight which will execute the script in MacSploit. You can view the raw source code on GitHub: <https://github.com/peretashacking/sight/blob/main/src/main.js> line 124:1.
+
+### Executing from your web browser
+
+You'll be able to execute scripts automatically from the URL `/app/execute.html?sid=d90b09d0-fa30-45df-88f2-79b8a9cfb55c`, where the `sid` query is the post ID. It will automatically get the script content and send the request to your client.
+
+This URL is used by the Execute button on the Kyvorn website. You can also execute scripts directly from the editor for easy script debugging.
+
+## Branding
+
+**Congratulations\!** You just included Kyvorn inside of your application\! Now, you are able to include the special Uses Kyvorn Execute badge onto your executor's website or Credits/Settings page. [You can download it on our main page here.](https://kyvorn.peretas.tech/#branding)
+
+![Kyvorn Logo](/supportskyvornexecute.png)

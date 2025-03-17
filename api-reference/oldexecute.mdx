@@ -24,7 +24,7 @@ The executor will login with the user's executorToken, and set its name up so th
 
 Once in a paired state, the executor will begin making requests checking for pending scripts every 5 seconds.
 
-In the future we will find a more efficent way of doing this that takes up less bandwith possibly (since this implementation is maybe 100+/- KB).
+In the future we will find a more efficent way of doing this that takes up less bandwith possibly (since this implementation is maybe ~100 KB).
 
 ## [NEW] Kyvorn Execute Client Code
 
@@ -60,7 +60,7 @@ It's not reccomended to change the SCRIPT_CHECK_WAIT_DURATION as it is good enou
 
 You'll need to find the `function execute(script)` to setup your executor's execute function. You'll need to add your custom logic that will execute the script, which is included as the variable "script".
 
-In this example, I use the execute function from Sight which will execute the script in MacSploit. You can view the raw source code on GitHub: <https://github.com/peretashacking/sight/blob/main/src/main.js> line 124:1.
+In this example, I use the execute function from Sight which will execute the script in MacSploit. You can view the raw source code on GitHub: [https://github.com/peretashacking/sight/blob/main/src/main.js](https://github.com/peretashacking/sight/blob/main/src/main.js) line 124:1.
 
 ### Executing from your web browser
 
