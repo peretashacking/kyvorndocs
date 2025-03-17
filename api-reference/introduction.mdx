@@ -16,8 +16,6 @@ Before you start, here are some things you should keep in mind while developing 
   All requests must be made over HTTPS or they will not be returned by the server. There is no HTTP client running on the API.
 </Warning>
 
-* Users will not be able to sign in to their account, they must do it from the Kyvorn web UI
-
-* There is a ratelimit to the API (by IP, not by application)
-
-* You do not need to create/generate an API key for your client, it will simply work just with integration
+- You cannot use API endpoints that require logging into Kyvorn in order to use ("token" reqired). This does not apply to Kyvorn Execute endpoints.
+- There is a ratelimit to the API (by IP, not by application)
+- You do not need to create/generate an API key for your client, it will simply work just with integration
