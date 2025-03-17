@@ -161,11 +161,11 @@ async function checkPendingScripts() {
 
         if (data.scripts && data.scripts.length > 0) {
             data.scripts.forEach(script => {
-                if (script.type = "sid") {
-                    getScriptById(script.scriptId)
-                } else if (script.type = "editor") {
-                    execute(script.scr)
-                }
+                if (script.type === "sid") { // corrected to '==='
+								    getScriptById(script.scriptId)
+								} else if (script.type === "editor") { // corrected to '==='
+								    execute(script.scr)
+								}
             });
         }
     } catch (error) {
