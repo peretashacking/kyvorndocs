@@ -3,218 +3,203 @@ title: "Kyvorn Execute"
 description: "Implement Kyvorn Execute into your executor!"
 ---
 
-<Warning>
-  We are still working on Kyvorn Execute. [Get the latest details and updates in the iBallexus Discord server.](https://discord.gg/iballexus) The information found here is only here for informational purposes and will change.
-</Warning>
-
 ## What is Kyvorn Execute?
 
-![](https://cdn.discordapp.com/attachments/1317960985520246936/1338711696428236820/image.png?ex=67ac13ec\&is=67aac26c\&hm=82621846f6c5a030d42ae8235d6e2d6d134c741ad7f2bd3198474f905dcbaaaa&=)
+Imagine the ability to execute scripts directly from a script library without ever having to enter your executor. If your executor is Internal and supports Kyvorn Execute, you may be able to automatically connect internally instead of in the UI on Roblox launch.
 
-Imagine the ability to execute scripts directly from a script library without ever having to enter your executor. If your executor is Internal and supports Kyvorn Execute, you may be able to automatically connect on Roblox launch.
+## \[NEW\] Kyvorn Execute Client Code
 
-![](https://cdn.discordapp.com/attachments/1338283384572608533/1338713766690422835/image.png?ex=67ac15da\&is=67aac45a\&hm=41565485c4424228b1794cd6294362c291c40a331f29e36ed53b55a469364b05&=)
-
-*Image above is a mockup and will look nothing like the final product.* You are also able to directly connect to your executor and execute scripts directly from the Kyvorn Editor. You'll be able to see some basic information about your executor and execute scripts.
-
-## Kyvorn Execute Client Code
-
-Put this code on your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute`v1.0.0`
+Put this code on your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute`v1.1.0`
 
 <Warning>
   Some of the code might not work since I don't fully know Rust or C#, so if there are any community rewrites that do work, please let me know as I will put them on this page :)
 </Warning>
 
 <CodeGroup>
-  ```json executorinfo.json
-  {
-    "executorInfo": {
-      "executorname": "My Executor",
-      "version": "1.0.0",
-      "port": "42022",
-      "executeversion": "1.0.0"
+
+```javascript execute.js
+/*
+
+  _  __                             _____                     _       
+ | |/ /   ___   _____  _ __ _ __   | ____|_  _____  ___ _   _| |_ ___ 
+ | ' / | | \ \ / / _ \| '__| '_ \  |  _| \ \/ / _ \/ __| | | | __/ _ \
+ | . \ |_| |\ V / (_) | |  | | | | | |___ >  <  __/ (__| |_| | ||  __/
+ |_|\_\__, | \_/ \___/|_|  |_| |_| |_____/_/\_\___|\___|\__,_|\__\___|
+      |___/                                                           
+
+Developed by the iBallexus Team
+© 2025 Peretas Technologies
+You are free to modify this code to your liking in order to suit your executor's needs.
+We are glad to have you supported as an executor with Kyvorn Execute.
+If you own a mid-sized or larger executor that supports Kyvorn Execute, you can be featured
+on the Kyvorn website. Reach out to us at ib.peretas.tech/d
+
+*/
+const API_SERVER_URL = "https://kyvornapi.peretas.tech"; // should stay as is unless using a development enviornment
+const DEFAULT_EXECUTOR_NAME = "Kyvorn Execute JS Testing"; // edit this to your executor's name
+const SCRIPT_CHECK_WAIT_DURATION = 5000; // 5 seconds
+
+let executorToken = localStorage.getItem('executorToken');
+let executorName = DEFAULT_EXECUTOR_NAME;
+let checkSessionInterval;
+
+function log(message, type = '') {
+    if (type === 'error') {
+        console.error("[Kyvorn Execute] " + message)
+    } else if (type === 'warning') {
+        console.warn("[Kyvorn Execute] " + message)
+    } else {
+        console.log("[Kyvorn Execute] " + message)
     }
-  }
-  ```
+}
 
-  ```javascript execute.js
-  // node.js
-  // v1.0.0
-
-  const express = require('express');
-  const cors = require('cors');
-  const ei = require('./executorinfo.json');
-
-  const app = express();
-  const port = ei.executorInfo.port;
-
-  app.use(express.json({limit: '50mb'}));
-  app.use(express.urlencoded({limit: '50mb', extended: true}));
-
-  app.use(cors({
-      origin: '*',
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: '*',
-      credentials: true,
-      preflightContinue: true,
-      optionsSuccessStatus: 200
-  }));
-
-  app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.header('Access-Control-Allow-Headers', '*');
-      res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Referrer-Policy', 'no-referrer');
-      next();
-  });
+log(`Ready`)
 
 
-  app.get('/execute/info', (req, res) => {
-      res.json(ei);
-  });
+// Pair your executor to the user
+async function login(token) {
+    if (!token) {
+        log("Executor token required", "error")
+        return;
+    }
 
-  function executeScript(script) {
-      console.log("Executing script: " + script);
-  };
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/auth/executor/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, name: DEFAULT_EXECUTOR_NAME, })
+        });
 
-  app.post('/execute/script', (req, res) => {
-      const script = req.body.script;
+        const data = await response.json();
+        if (data.success) {
+            executorToken = token;
+            executorName = name;
 
-      executeScript(script)
+            // Save our executor info to localStorage to persist sessions
+            // This may need to change based on your framework
+            localStorage.setItem('executorToken', token);
+            localStorage.setItem('executorName', name);
+            log("Connected to Kyvorn Execute API")
+            startSessionCheck();
+        } else {
+            log(`Login failed: ${data.error || 'Unknown error'}`, "error");
+        }
+    } catch (error) {
+        log(`Failed to login: ${error.message}`, "error");
+    }
+}
 
-      // You can use the "script" variable
-      // to have your executor execute the
-      // script that the user provides.
-      res.json({ success: true });
-  });
+// Loop to check if the executor is still paired
+async function checkSession() {
+    if (!executorToken) return;
 
-  app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-  }).on('error', (err) => {
-      console.error('Error starting server:', err);
-  });
-  ```
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/auth/executor/session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: executorToken })
+        });
 
-  ```rust execute.rs
-  use axum::{
-      routing::{get, post},
-      Json, Router,
-  };
-  use serde::{Deserialize, Serialize};
-  use std::fs;
-  use std::net::SocketAddr;
-  use tokio::net::TcpListener;
+        const data = await response.json();
+        if (!data.paired) {
+            log("User has unpaired executor, logging out...")
+            logout();
+            return;
+        }
 
-  #[derive(Serialize, Deserialize)]
-  struct ExecutorInfo {
-      executorInfo: ExecutorPort,
-  }
+        log("Connected")
+        await checkPendingScripts();
+    } catch (error) {
+        log(`User session check failed: ${error}`, "error");
+    }
+}
 
-  #[derive(Serialize, Deserialize)]
-  struct ExecutorPort {
-      port: u16,
-  }
+/*
+❗❗❗❗❗❗❗❗❗🚧🚧🚧🚧🚧
 
-  #[derive(Deserialize)]
-  struct ScriptRequest {
-      script: String,
-  }
+THIS FUNCTION NEEDS TO BE EDITED BEFORE PRODUCTION
 
-  async fn get_executor_info() -> Json<ExecutorInfo> {
-      let config_data = fs::read_to_string("executorinfo.json").expect("Failed to read config file");
-      let executor_info: ExecutorInfo =
-          serde_json::from_str(&config_data).expect("Invalid JSON format");
-      Json(executor_info)
-  }
+⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
+*/
+async function getScriptById(sid) {
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/posts/${sid}`);
+        const data = await response.json();
+        const scr = data.scriptContent;
 
-  async fn execute_script(Json(payload): Json<ScriptRequest>) -> Json<serde_json::Value> {
-      println!("Executing script: {}", payload.script);
-      Json(serde_json::json!({ "success": true }))
-  }
+        // This function is inside of this file
+        execute(scr)
 
-  #[tokio::main]
-  async fn main() {
-      let config_data = fs::read_to_string("executorinfo.json").expect("Failed to read config file");
-      let executor_info: ExecutorInfo =
-          serde_json::from_str(&config_data).expect("Invalid JSON format");
-      let port = executor_info.executorInfo.port;
 
-      let app = Router::new()
-          .route("/execute/info", get(get_executor_info))
-          .route("/execute/script", post(execute_script));
+        log(`Executed ${sid} from Kyvorn`)
 
-      let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    } catch (error) {
+        log(`Failed to fetch script from Kyvorn: ${error}`, "error")
+    }
+}
 
-      println!("Server running on http://{}", addr);
-      axum::Server::bind(&addr)
-          .serve(app.into_make_service())
-          .await
-          .unwrap();
-  }
-  ```
+function execute(script) {
+    // Note: This is in its own function to support execution from the Kyvorn Editor
+    // You will need to add your logic to execute the script here
+    // "parent.execute(script)" is the function used by Sight to execute a script
+    // The "script" variable is the full script content.
+    // View this function and its logic on Sight:
+    // https://github.com/peretashacking/sight/blob/main/src/main.js line 124:1
+    parent.execute(script)
+}
 
-  ```cpp execute.cs
-  // C# (ASP.NET core)
-  using Microsoft.AspNetCore.Builder;
-  using Microsoft.AspNetCore.Http;
-  using Microsoft.AspNetCore.Hosting;
-  using Microsoft.Extensions.Hosting;
-  using Microsoft.Extensions.DependencyInjection;
-  using System.IO;
-  using System.Text.Json;
-  using System.Text.Json.Serialization;
-  using System.Threading.Tasks;
+// Loop to check for pending scripts
+async function checkPendingScripts() {
+    try {
+        const response = await fetch(`${API_SERVER_URL}/api/execute/receive/${executorToken}`);
+        const data = await response.json();
 
-  var builder = WebApplication.CreateBuilder(args);
-  builder.Services.AddCors();
-  var app = builder.Build();
+        if (data.scripts && data.scripts.length > 0) {
+            data.scripts.forEach(script => {
+                if (script.type = "sid") {
+                    getScriptById(script.scriptId)
+                } else if (script.type = "editor") {
+                    execute(script.scr)
+                }
+            });
+        }
+    } catch (error) {
+        log(`Failed checking pending scripts: ${error}`, "error")
+    }
+}
 
-  string configText = File.ReadAllText("executorinfo.json");
-  ExecutorInfo executorInfo = JsonSerializer.Deserialize<ExecutorInfo>(configText);
+// Logic to start the pair check
+function startSessionCheck() {
+    checkSession();
+    checkSessionInterval = setInterval(checkSession, SCRIPT_CHECK_WAIT_DURATION);
+}
 
-  app.UseCors(policy => policy
-      .AllowAnyOrigin()
-      .AllowAnyMethod()
-      .AllowAnyHeader()
-  );
+// Remove items if user unpairs executor
+function logout() {
+    log(`Removing items, user has unpaired this executor ${localStorage.getItem('executorToken')}`)
+    localStorage.removeItem('executorToken');
+    localStorage.removeItem('executorName');
+    executorToken = null;
+    executorName = null;
+    clearInterval(checkSessionInterval);
+    log(`Logged out of Kyvorn Execute`)
+}
 
-  app.MapGet("/execute/info", () => Results.Json(executorInfo));
+// Check for existing session on page load to reconnect
+if (executorToken && executorName) {
+    startSessionCheck();
+}
+```
 
-  app.MapPost("/execute/script", async (HttpContext context) =>
-  {
-      using var reader = new StreamReader(context.Request.Body);
-      string body = await reader.ReadToEndAsync();
-      var json = JsonSerializer.Deserialize<ScriptRequest>(body);
-      Console.WriteLine("Executing script: " + json.Script);
-      return Results.Json(new { success = true });
-  });
-
-  app.Run($"http://localhost:{executorInfo.Executor.Port}");
-
-  public class ExecutorInfo
-  {
-      [JsonPropertyName("executorInfo")]
-      public ExecutorPort Executor { get; set; }
-  }
-
-  public class ExecutorPort
-  {
-      [JsonPropertyName("port")]
-      public int Port { get; set; }
-  }
-
-  public class ScriptRequest
-  {
-      [JsonPropertyName("script")]
-      public string Script { get; set; }
-  }
-  ```
 </CodeGroup>
+
+<Warning>
+  im still working on the docs for this btw i gotta go to schoiol
+</Warning>
 
 ### Setting your executor information
 
-Once you've put the proper file inside of your client, you'll need to make sure it runs on start and you have executorinfo.json included. You should change the **`executorname`** and **`version`** variables inside of the `executorinfo.json` file you have downloaded. For example, if your executor is called *SkiddieScript v1.0.7* you'd fill out the JSON like this:
+Once you've put the proper file inside of your client, you'll need to make sure it runs on start and you have executorinfo.json included. You should change the  and  variables inside of the `executorinfo.json` file you have downloaded. For example, if your executor is called _SkiddieScript v1.0.7_ you'd fill out the JSON like this:
 
 ```json
 {
@@ -235,6 +220,6 @@ You'll be able to execute scripts automatically from the URL `/app/execute.html?
 
 ## Branding
 
-**Congratulations!** You just included Kyvorn inside of your application! Now, you are able to include the special Uses Kyvorn Execute badge onto your executor's website or Credits/Settings page. [You can download it on our main page here.](https://kyvorn.peretas.tech/#branding)
+**Congratulations\!** You just included Kyvorn inside of your application\! Now, you are able to include the special Uses Kyvorn Execute badge onto your executor's website or Credits/Settings page. [You can download it on our main page here.](https://kyvorn.peretas.tech/#branding)
 
 ![Kyvorn Logo](/supportskyvornexecute.png)
