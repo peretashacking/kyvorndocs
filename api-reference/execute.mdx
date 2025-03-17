@@ -9,7 +9,7 @@ Imagine the ability to execute scripts directly from a script library without ev
 
 ## How does Kyvorn Execute work?
 
-### Web Interface\/Client
+### Web Interface/Client
 
 The web interface will create an executor token under the user's authorization, and then that will be saved to be "paired" to an executor.
 
@@ -31,7 +31,7 @@ In the future we will find a more efficent way of doing this that takes up less 
   From now on, "client" is used interchangeably with the Web interface and your Executor's user interface
 </Info>
 
-Integrate this code with your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute`v1.1.0`
+Integrate this code with your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute `v1.1.0`
 
 <Warning>
   This code may need adjustments if Kyvorn Execute updates its backend in the future
@@ -106,7 +106,7 @@ async function login(token) {
         const response = await fetch(`${API_SERVER_URL}/api/auth/executor/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, name: DEFAULT_EXECUTOR_NAME, })
+            body: JSON.stringify({ token, name: DEFAULT_EXECUTOR_NAME })
         });
 
         const data = await response.json();
@@ -161,11 +161,11 @@ async function checkPendingScripts() {
 
         if (data.scripts && data.scripts.length > 0) {
             data.scripts.forEach(script => {
-                if (script.type === "sid") { // corrected to '==='
-								    getScriptById(script.scriptId)
-								} else if (script.type === "editor") { // corrected to '==='
-								    execute(script.scr)
-								}
+                if (script.type === "sid") {
+                    getScriptById(script.scriptId)
+                } else if (script.type === "editor") {
+                    execute(script.scr)
+                }
             });
         }
     } catch (error) {
