@@ -7,12 +7,34 @@ description: "Implement Kyvorn Execute into your executor!"
 
 Imagine the ability to execute scripts directly from a script library without ever having to enter your executor. If your executor is Internal and supports Kyvorn Execute, you may be able to automatically connect internally instead of in the UI on Roblox launch.
 
+## How does Kyvorn Execute work?
+
+### Web Interface/Client
+
+The web interface will create an executor token under the user's authorization, and then that will be saved to be "paired" to an executor.
+
+An executor can then "pair" and connect with this token. The pairing is meant so that if a user has multiple executors/multi-instance you can easily send it to a single executor in one dashboard.
+
+**If you only have one executor paired** then it will default to running that one automatically when the page is loaded.
+
+### Executor
+
+The executor will login with the user's executorToken, and set its name up so that the executor is in a Paired state.
+
+Once in a paired state, the executor will begin making requests checking for pending scripts every 5 seconds.
+
+In the future we will find a more efficent way of doing this that takes up less bandwith possibly (since this implementation is maybe 100+/- KB).
+
 ## \[NEW\] Kyvorn Execute Client Code
 
-Put this code on your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute`v1.1.0`
+<Info>
+  From now on, "client" is used interchangeably with the Web interface and your Executor's user interface
+</Info>
+
+Integrate this code with your client in order to have Kyvorn Execute always enabled. Code examples are Kyvorn Execute`v1.1.0`
 
 <Warning>
-  Some of the code might not work since I don't fully know Rust or C#, so if there are any community rewrites that do work, please let me know as I will put them on this page :)
+  This code may need adjustments if Kyvorn Execute updates its backend in the future
 </Warning>
 
 <CodeGroup>
@@ -55,6 +77,23 @@ function log(message, type = '') {
 
 log(`Ready`)
 
+
+/*
+❗❗❗❗❗❗❗❗❗🚧🚧🚧🚧🚧
+
+THIS FUNCTION NEEDS TO BE EDITED BEFORE PRODUCTION
+
+⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
+*/
+function execute(script) {
+    // Note: This is in its own function to support execution from the Kyvorn Editor
+    // You will need to add your logic to execute the script here
+    // "parent.execute(script)" is the function used by Sight to execute a script
+    // The "script" variable is the full script content.
+    // View this function and its logic on Sight:
+    // https://github.com/peretashacking/sight/blob/main/src/main.js line 124:1
+    parent.execute(script)
+}
 
 // Pair your executor to the user
 async function login(token) {
@@ -114,40 +153,6 @@ async function checkSession() {
     }
 }
 
-/*
-❗❗❗❗❗❗❗❗❗🚧🚧🚧🚧🚧
-
-THIS FUNCTION NEEDS TO BE EDITED BEFORE PRODUCTION
-
-⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
-*/
-async function getScriptById(sid) {
-    try {
-        const response = await fetch(`${API_SERVER_URL}/api/posts/${sid}`);
-        const data = await response.json();
-        const scr = data.scriptContent;
-
-        // This function is inside of this file
-        execute(scr)
-
-
-        log(`Executed ${sid} from Kyvorn`)
-
-    } catch (error) {
-        log(`Failed to fetch script from Kyvorn: ${error}`, "error")
-    }
-}
-
-function execute(script) {
-    // Note: This is in its own function to support execution from the Kyvorn Editor
-    // You will need to add your logic to execute the script here
-    // "parent.execute(script)" is the function used by Sight to execute a script
-    // The "script" variable is the full script content.
-    // View this function and its logic on Sight:
-    // https://github.com/peretashacking/sight/blob/main/src/main.js line 124:1
-    parent.execute(script)
-}
-
 // Loop to check for pending scripts
 async function checkPendingScripts() {
     try {
@@ -193,30 +198,31 @@ if (executorToken && executorName) {
 
 </CodeGroup>
 
-<Warning>
-  im still working on the docs for this btw i gotta go to schoiol
-</Warning>
+## Integrating with your executor
 
-### Setting your executor information
+### Setting your executor's name
 
-Once you've put the proper file inside of your client, you'll need to make sure it runs on start and you have executorinfo.json included. You should change the  and  variables inside of the `executorinfo.json` file you have downloaded. For example, if your executor is called _SkiddieScript v1.0.7_ you'd fill out the JSON like this:
+Once you've put the proper file inside of your client, you'll need to make sure it runs on start. You should change the const variables at the top of the `execute.js` file you have downloaded. For example, if your executor is called _SkiddieScript_ you'd fill out the JSON like this:
 
-```json
-{
-  "executorInfo": {
-    "executorname": "SkiddieScript",
-    "version": "1.0.7",
-    "port": "42022",
-    "executeversion": "1.0.0"
-  }
-}
+```javascript
+const API_SERVER_URL = "https://kyvornapi.peretas.tech"; // should stay as is unless using a development enviornment
+const DEFAULT_EXECUTOR_NAME = "SkiddieScript"; // edit this to your executor's name
+const SCRIPT_CHECK_WAIT_DURATION = 5000; // 5 seconds
 ```
 
-Keep `executeversion` as it is - this will be updated with Kyvorn Execute, and is used to inform the user of the Kyvorn Execute version your executor is using.
+It's not reccomended to change the SCRIPT_CHECK_WAIT_DURATION as it is good enough for checking scripts.
+
+### Setting up the execute function
+
+You'll need to find the `function execute(script)` to setup your executor's execute function. You'll need to add your custom logic that will execute the script, which is included as the variable "script".
+
+In this example, I use the execute function from Sight which will execute the script in MacSploit. You can view the raw source code on GitHub: <https://github.com/peretashacking/sight/blob/main/src/main.js> line 124:1.
 
 ### Executing from your web browser
 
 You'll be able to execute scripts automatically from the URL `/app/execute.html?sid=d90b09d0-fa30-45df-88f2-79b8a9cfb55c`, where the `sid` query is the post ID. It will automatically get the script content and send the request to your client.
+
+This URL is used by the Execute button on the Kyvorn website. You can also execute scripts directly from the editor for easy script debugging.
 
 ## Branding
 
